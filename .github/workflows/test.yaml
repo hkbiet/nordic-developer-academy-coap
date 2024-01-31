@@ -14,11 +14,11 @@ jobs:
         with:
           go-version: 1.21.6
 
-      - name: Build
+      - name: Build server
         working-directory: server
         run: go build
 
-      - name: Build
+      - name: Build client
         working-directory: client
         run: go build
 

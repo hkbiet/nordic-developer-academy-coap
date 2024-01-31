@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"time"
+	"flag"
 
 	coap "github.com/plgd-dev/go-coap/v3"
 	"github.com/plgd-dev/go-coap/v3/message"
@@ -72,6 +73,11 @@ func dynamicResource(w mux.ResponseWriter, r *mux.Message) {
 }
 
 func main() {
+	address := flag.String("address", "localhost:5688",
+		"The UDP Server listen address with port, e.g. `:5688` or `0.0.0.0:5688`.")
+	flag.Parse()
+	fmt.Printf("UDP Server listening on: %s\n", *address)
+
 	r := mux.NewRouter()
 	r.Use(loggingMiddleware)
 	r.Handle("/static/hello", mux.HandlerFunc(helloResource))
@@ -79,6 +85,6 @@ func main() {
 
 	log.Println("Server starting")
 
-	log.Fatal(coap.ListenAndServe("udp", ":5688", r))
+	log.Fatal(coap.ListenAndServe("udp", *address, r))
 
 }

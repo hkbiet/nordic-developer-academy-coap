@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"time"
+	"flag"
 
 	"github.com/plgd-dev/go-coap/v3/message"
 	"github.com/plgd-dev/go-coap/v3/udp"
@@ -14,7 +15,12 @@ import (
 )
 
 func main() {
-	co, err := udp.Dial("localhost:5688")
+	address := flag.String("address", "localhost:5688",
+		"The UDP Server listen address with port, e.g. `:5688` or `0.0.0.0:5688`.")
+	flag.Parse()
+	fmt.Printf("UDP Server listening on: %s\n", *address)
+
+	co, err := udp.Dial(*address)
 	if err != nil {
 		log.Fatalf("Error dialing: %v", err)
 	}
