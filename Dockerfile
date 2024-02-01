@@ -13,5 +13,6 @@ USER coap
 WORKDIR /home/coap
 
 EXPOSE 5688/udp
+EXPOSE 5689/udp
 
 CMD [ "/home/coap/start.sh" ]
