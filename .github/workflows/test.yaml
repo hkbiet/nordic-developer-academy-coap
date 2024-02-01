@@ -35,5 +35,8 @@ jobs:
         working-directory: client
         run: go run client.go
 
-      - run: docker container logs `docker ps | grep academy-coap | awk '{ print $1; }'`
+      - name: Docker logs
+        run: |
+          docker ps
+          docker container logs `docker ps | grep academy-coap | awk '{ print $1; }'`
         if: always()
