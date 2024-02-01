@@ -28,15 +28,24 @@ func main() {
 	password := flag.String("password", "connect:anything",
 		"The password to use for the PSK in dTLS.")
 	flag.Parse()
-	udpAddr := fmt.Sprintf("%s:%d", *address, 5688)
-	dtlsAddr := fmt.Sprintf("%s:%d", *address, 5689)
-	fmt.Printf("UDP Server listening on: %s\n", udpAddr)
-	fmt.Printf("dTLS Server listening on: %s\n", dtlsAddr)
-	fmt.Printf("dTLS PSK: %s\n", *password)
 
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
+	defer cancel()
+
+	id := uuid.New()
+
+	udpAddr := fmt.Sprintf("%s:%d", *address, 5688)
+	fmt.Printf("UDP Server listening on: %s\n", udpAddr)
 	co, err := udp.Dial(udpAddr)
 	check(err)
 
+	internal.TestHello(co, ctx)
+	internal.TestPutCustom(co, ctx, fmt.Sprintf("/%s", id))
+	internal.TestGetCustom(co, ctx, fmt.Sprintf("/%s", id))
+
+	dtlsAddr := fmt.Sprintf("%s:%d", *address, 5689)
+	fmt.Printf("dTLS Server listening on: %s\n", dtlsAddr)
+	fmt.Printf("dTLS PSK: %s\n", *password)
 	codTLS, err := dtls.Dial(dtlsAddr, &piondtls.Config{
 		PSK: func(hint []byte) ([]byte, error) {
 			fmt.Printf("Server's hint: %s \n", hint)
@@ -46,15 +55,6 @@ func main() {
 		CipherSuites:    []piondtls.CipherSuiteID{piondtls.TLS_PSK_WITH_AES_128_CCM_8},
 	})
 	check(err)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
-	defer cancel()
-
-	id := uuid.New()
-
-	internal.TestHello(co, ctx)
-	internal.TestPutCustom(co, ctx, fmt.Sprintf("/%s", id))
-	internal.TestGetCustom(co, ctx, fmt.Sprintf("/%s", id))
 
 	internal.TestHello(codTLS, ctx)
 	internal.TestPutCustom(codTLS, ctx, fmt.Sprintf("/%s", id))
