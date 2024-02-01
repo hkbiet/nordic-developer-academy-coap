@@ -14,6 +14,8 @@ jobs:
         with:
           go-version: 1.21.6
 
+      - run: ip addr
+
       - name: Build server
         working-directory: server
         run: go build
