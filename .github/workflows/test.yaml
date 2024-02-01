@@ -14,20 +14,6 @@ jobs:
         with:
           go-version: 1.21.6
 
-      - name: Prepare self-signed cert
-        run: |
-          mkdir certificates
-          cd certificates
-          # CA key and certificate
-          openssl genrsa -out CA.key 2048
-          openssl req -new -x509 -nodes -key CA.key -sha256 -days 365 -extensions v3_ca -out CA.crt -subj '/OU=Nordic Developer Academy'
-          # Server key
-          openssl genrsa -out server.key 2048
-          # CSR
-          openssl req -out server.csr -key server.key -new -subj '/CN=coap.academy.nordicsemi.com'
-          # Sign CSR
-          openssl x509 -req -in server.csr -CA CA.crt -CAkey CA.key -CAcreateserial -out server.crt -days 365
-
       - name: Build server
         working-directory: server
         run: go build
@@ -45,4 +31,4 @@ jobs:
 
       - name: Run test client
         working-directory: client
-        run: go run main.go
+        run: go run client.go

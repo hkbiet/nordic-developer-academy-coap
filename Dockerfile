@@ -8,9 +8,6 @@ RUN useradd -rm -d /home/coap -s /bin/bash -u 1002 coap
 
 COPY --chown=coap:coap ./server/coap-server         /home/coap/coap-server
 COPY --chown=coap:coap ./server/start.sh            /home/coap/start.sh
-COPY --chown=coap:coap ./certificates/CA.crt        /home/coap/CA.crt
-COPY --chown=coap:coap ./certificates/server.crt    /home/coap/server.crt
-COPY --chown=coap:coap ./certificates/server.key    /home/coap/server.key
 
 USER coap
 WORKDIR /home/coap

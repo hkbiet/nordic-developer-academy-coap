@@ -6,6 +6,7 @@ require github.com/plgd-dev/go-coap/v3 v3.3.1
 
 require (
 	github.com/dsnet/golib/memfile v1.0.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/pion/dtls/v2 v2.2.8-0.20240102042511-9ffd96c827fe // indirect
