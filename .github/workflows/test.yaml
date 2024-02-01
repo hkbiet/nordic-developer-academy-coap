@@ -14,7 +14,6 @@ jobs:
         with:
           go-version: 1.21.6
 
-
       - name: Build server
         working-directory: server
         run: go build
@@ -30,7 +29,9 @@ jobs:
       - name: Run image
         run: docker run -p 5688:5688/udp -p 5689:5689/udp -d academy-coap
 
-      - run: docker container logs academy-coap
+      - run: docker ps
+
+      - run: docker container logs `docker ps | grep academy-coap | awk '{ print $1; }'`
 
       - name: Run test client
         working-directory: client
