@@ -31,4 +31,4 @@ jobs:
 
       - name: Run test client
         working-directory: client
-        run: go run client.go
+        run: go run client.go -address 172.17.0.2
