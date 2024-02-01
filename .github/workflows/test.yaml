@@ -31,8 +31,9 @@ jobs:
 
       - run: docker ps
 
-      - run: docker container logs `docker ps | grep academy-coap | awk '{ print $1; }'`
-
       - name: Run test client
         working-directory: client
         run: go run client.go
+
+      - run: docker container logs `docker ps | grep academy-coap | awk '{ print $1; }'`
+        if: always()
