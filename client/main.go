@@ -15,12 +15,15 @@ import (
 )
 
 func main() {
-	address := flag.String("address", "localhost:5688",
-		"The UDP Server listen address with port, e.g. `:5688` or `0.0.0.0:5688`.")
+	address := flag.String("address", "localhost",
+		"The UDP Server listen address, e.g. `localhost` or `0.0.0.0`.")
 	flag.Parse()
-	fmt.Printf("UDP Server listening on: %s\n", *address)
+	udpAddr := fmt.Sprintf("%s:%d", *address, 5688)
+	dtlsAddr := fmt.Sprintf("%s:%d", *address, 5689)
+	fmt.Printf("UDP Server listening on: %s\n", udpAddr)
+	fmt.Printf("dTLS Server listening on: %s\n", dtlsAddr)
 
-	co, err := udp.Dial(*address)
+	co, err := udp.Dial(udpAddr)
 	if err != nil {
 		log.Fatalf("Error dialing: %v", err)
 	}

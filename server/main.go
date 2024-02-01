@@ -93,10 +93,10 @@ func dynamicResource(w mux.ResponseWriter, r *mux.Message) {
 func main() {
 	address := flag.String("address", "localhost",
 		"The UDP Server listen address, e.g. `localhost` or `0.0.0.0`.")
-	certDir := flag.String("certDir", "/home/coap", "The folder containing the server certificate.")
+	certDir := flag.String("certDir", ".", "The folder containing the server certificate.")
+	flag.Parse()
 	udpAddr := fmt.Sprintf("%s:%d", *address, 5688)
 	dtlsAddr := fmt.Sprintf("%s:%d", *address, 5689)
-	flag.Parse()
 	fmt.Printf("UDP Server listening on: %s\n", udpAddr)
 	fmt.Printf("dTLS UDP Server listening on: %s\n", dtlsAddr)
 

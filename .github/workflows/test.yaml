@@ -16,6 +16,8 @@ jobs:
 
       - name: Prepare self-signed cert
         run: |
+          mkdir certificates
+          cd certificates
           # CA key and certificate
           openssl genrsa -out CA.key 2048
           openssl req -new -x509 -nodes -key CA.key -sha256 -days 365 -extensions v3_ca -out CA.crt -subj '/OU=Nordic Developer Academy'
