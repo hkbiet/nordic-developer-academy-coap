@@ -24,8 +24,8 @@ func TestHello(co *client.Conn, ctx context.Context) {
 }
 
 // Test writing to custom resource
-func TestPutCustom(co *client.Conn, ctx context.Context, path string) {
-	_, err := co.Put(ctx, path, message.TextPlain, bytes.NewReader([]byte("Some random value.")))
+func TestPutCustom(co *client.Conn, ctx context.Context, path string, value []byte) {
+	_, err := co.Put(ctx, path, message.TextPlain, bytes.NewReader(value))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,15 +33,17 @@ func TestPutCustom(co *client.Conn, ctx context.Context, path string) {
 }
 
 // Test getting custom resource
-func TestGetCustom(co *client.Conn, ctx context.Context, path string) []byte {
+func TestGetCustom(co *client.Conn, ctx context.Context, path string) ([]byte, error) {
 	resp, err := co.Get(ctx, path)
 	if err != nil {
 		log.Fatalf("Error sending request: %v", err)
+		return nil, err
 	}
 	data, err := io.ReadAll(resp.Body())
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 	log.Printf("%s\n", data)
-	return data
+	return data, nil
 }

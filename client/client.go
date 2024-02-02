@@ -4,8 +4,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"time"
 	"log"
+	"time"
 
 	"github.com/plgd-dev/go-coap/v3/udp"
 
@@ -33,16 +33,19 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
 	defer cancel()
 
-	id := uuid.New()
-
 	udpAddr := fmt.Sprintf("%s:%d", *address, 5688)
 	log.Printf("UDP Server listening on: %s\n", udpAddr)
 	co, err := udp.Dial(udpAddr)
 	check(err)
 
 	internal.TestHello(co, ctx)
-	internal.TestPutCustom(co, ctx, fmt.Sprintf("/%s", id))
-	internal.TestGetCustom(co, ctx, fmt.Sprintf("/%s", id))
+	id1 := []byte(uuid.New().String())
+	internal.TestPutCustom(co, ctx, fmt.Sprintf("/%s", id1), id1)
+	readId1, err := internal.TestGetCustom(co, ctx, fmt.Sprintf("/%s", id1))
+	check(err)
+	if string(readId1) != string(id1) {
+		log.Fatal(fmt.Sprintf("Read value %s is not equal written value %s.", id1, readId1))
+	}
 
 	dtlsAddr := fmt.Sprintf("%s:%d", *address, 5689)
 	log.Printf("dTLS Server listening on: %s\n", dtlsAddr)
@@ -58,6 +61,11 @@ func main() {
 	check(err)
 
 	internal.TestHello(codTLS, ctx)
-	internal.TestPutCustom(codTLS, ctx, fmt.Sprintf("/%s", id))
-	internal.TestGetCustom(codTLS, ctx, fmt.Sprintf("/%s", id))
+	id2 := []byte(uuid.New().String())
+	internal.TestPutCustom(codTLS, ctx, fmt.Sprintf("/%s", id2), id2)
+	readId2, err := internal.TestGetCustom(codTLS, ctx, fmt.Sprintf("/%s", id2))
+	check(err)
+	if string(readId2) != string(id2) {
+		log.Fatal(fmt.Sprintf("Read value %s is not equal written value %s.", id2, readId2))
+	}
 }
