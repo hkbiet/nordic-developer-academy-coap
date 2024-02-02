@@ -1,2 +1,2 @@
-server/server
-client/client
+server/coap-server
+client/coap-client

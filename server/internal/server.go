@@ -63,7 +63,10 @@ func dynamicResource(client *azblob.Client, containerName string) func(mux.Respo
 				log.Fatal(err)
 			}
 			log.Printf("Stored content: '%s' in '%s'\n", data, path)
-			Store(client, containerName, key, data)
+			_, err = Store(client, containerName, key, data)
+			if err != nil {
+				log.Fatal(err)
+			}
 			resp.SetBody(bytes.NewReader([]byte("OK")))
 		case codes.GET:
 			stored, err := Retrieve(client, containerName, key)
