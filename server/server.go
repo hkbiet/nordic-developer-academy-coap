@@ -4,10 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
-	coap "github.com/plgd-dev/go-coap/v3"
-	piondtls "github.com/pion/dtls/v2"
 	"coap-server/internal"
+	piondtls "github.com/pion/dtls/v2"
+	coap "github.com/plgd-dev/go-coap/v3"
+
+
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 )
 
 func check(e error) {
@@ -20,13 +24,25 @@ func main() {
 	address := flag.String("address", "localhost",
 		"The UDP Server listen address, e.g. `localhost` or `0.0.0.0`.")
 	password := flag.String("password", "connect:anything",
-	"The password to use for the PSK in dTLS.")
+		"The password to use for the PSK in dTLS.")
 	dtls := flag.Bool("dTLS", false, "Start a dTLS server")
 	flag.Parse()
 
-	r := internal.NewServer()
+	storageConnectionString, ok := os.LookupEnv("STORAGE_CONNECTION_STRING")
+	if !ok {
+		log.Fatal("the environment variable 'STORAGE_CONNECTION_STRING' could not be found")
+	}
+	storageClient, err := azblob.NewClientFromConnectionString(storageConnectionString, nil)
+	check(err)
 
-	if (*dtls) {
+	containerName, ok := os.LookupEnv("STORAGE_CONTAINER_NAME")
+	if !ok {
+		log.Fatal("the environment variable 'STORAGE_CONTAINER_NAME' could not be found")
+	}
+
+	r := internal.NewServer(storageClient, containerName)
+
+	if *dtls {
 		dtlsAddr := fmt.Sprintf("%s:%d", *address, 5689)
 		fmt.Printf("dTLS UDP Server listening on: %s\n", dtlsAddr)
 		fmt.Printf("dTLS PSK: %s\n", *password)

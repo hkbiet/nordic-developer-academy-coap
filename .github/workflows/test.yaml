@@ -6,6 +6,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    environment: production
+
     steps:
       - uses: actions/checkout@v4
 
@@ -27,7 +29,10 @@ jobs:
           docker build -t academy-coap .
 
       - name: Run image
-        run: docker run -p 5688:5688/udp -p 5689:5689/udp -d academy-coap
+        env:
+          STORAGE_CONNECTION_STRING: ${{ secrets.STORAGE_CONNECTION_STRING }}
+          STORAGE_CONTAINER_NAME: ${{ vars.STORAGE_CONTAINER_NAME }}
+        run: docker run -p 5688:5688/udp -p 5689:5689/udp -e STORAGE_CONNECTION_STRING -e STORAGE_CONTAINER_NAME -d academy-coap
 
       - run: docker ps
 
