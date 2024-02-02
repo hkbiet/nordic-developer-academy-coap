@@ -34,11 +34,13 @@ func main() {
 	}
 	storageClient, err := azblob.NewClientFromConnectionString(storageConnectionString, nil)
 	check(err)
+	log.Printf("Azure Storage client URL: %s\n", storageClient.URL())
 
 	containerName, ok := os.LookupEnv("STORAGE_CONTAINER_NAME")
 	if !ok {
 		log.Fatal("the environment variable 'STORAGE_CONTAINER_NAME' could not be found")
 	}
+	log.Printf("Container name: %s\n", containerName)
 
 	r := internal.NewServer(storageClient, containerName)
 
