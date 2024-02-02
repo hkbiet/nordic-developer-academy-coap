@@ -46,11 +46,11 @@ func main() {
 
 	if *dtls {
 		dtlsAddr := fmt.Sprintf("%s:%d", *address, 5689)
-		fmt.Printf("dTLS UDP Server listening on: %s\n", dtlsAddr)
-		fmt.Printf("dTLS PSK: %s\n", *password)
+		log.Printf("dTLS UDP Server listening on: %s\n", dtlsAddr)
+		log.Printf("dTLS PSK: %s\n", *password)
 		log.Fatal(coap.ListenAndServeDTLS("udp", dtlsAddr, &piondtls.Config{
 			PSK: func(hint []byte) ([]byte, error) {
-				fmt.Printf("Client's hint: %s \n", hint)
+				log.Printf("Client's hint: %s \n", hint)
 				return []byte(*password), nil
 			},
 			PSKIdentityHint: []byte("Pion DTLS Client"),
@@ -58,7 +58,7 @@ func main() {
 		}, r))
 	} else {
 		udpAddr := fmt.Sprintf("%s:%d", *address, 5688)
-		fmt.Printf("UDP Server listening on: %s\n", udpAddr)
+		log.Printf("UDP Server listening on: %s\n", udpAddr)
 		log.Fatal(coap.ListenAndServe("udp", udpAddr, r))
 	}
 }

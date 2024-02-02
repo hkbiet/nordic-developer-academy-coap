@@ -34,7 +34,7 @@ jobs:
           STORAGE_CONTAINER_NAME: ${{ vars.STORAGE_CONTAINER_NAME }}
         run: |
           docker run -p 5688:5688/udp -p 5689:5689/udp -e STORAGE_CONNECTION_STRING -e STORAGE_CONTAINER_NAME -d academy-coap
-          sleep 5
+          sleep 10
 
       - run: docker ps
 

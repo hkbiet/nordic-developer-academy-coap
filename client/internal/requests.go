@@ -3,7 +3,6 @@ package internal
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"log"
 
@@ -21,7 +20,7 @@ func TestHello(co *client.Conn, ctx context.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%s\n", data)
+	log.Printf("%s\n", data)
 }
 
 // Test writing to custom resource
@@ -30,7 +29,7 @@ func TestPutCustom(co *client.Conn, ctx context.Context, path string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Written to %s\n", path)
+	log.Printf("Written to %s\n", path)
 }
 
 // Test getting custom resource
@@ -43,6 +42,6 @@ func TestGetCustom(co *client.Conn, ctx context.Context, path string) []byte {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%s\n", data)
+	log.Printf("%s\n", data)
 	return data
 }

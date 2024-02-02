@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"time"
+	"log"
 
 	"github.com/plgd-dev/go-coap/v3/udp"
 
@@ -35,7 +36,7 @@ func main() {
 	id := uuid.New()
 
 	udpAddr := fmt.Sprintf("%s:%d", *address, 5688)
-	fmt.Printf("UDP Server listening on: %s\n", udpAddr)
+	log.Printf("UDP Server listening on: %s\n", udpAddr)
 	co, err := udp.Dial(udpAddr)
 	check(err)
 
@@ -44,11 +45,11 @@ func main() {
 	internal.TestGetCustom(co, ctx, fmt.Sprintf("/%s", id))
 
 	dtlsAddr := fmt.Sprintf("%s:%d", *address, 5689)
-	fmt.Printf("dTLS Server listening on: %s\n", dtlsAddr)
-	fmt.Printf("dTLS PSK: %s\n", *password)
+	log.Printf("dTLS Server listening on: %s\n", dtlsAddr)
+	log.Printf("dTLS PSK: %s\n", *password)
 	codTLS, err := dtls.Dial(dtlsAddr, &piondtls.Config{
 		PSK: func(hint []byte) ([]byte, error) {
-			fmt.Printf("Server's hint: %s \n", hint)
+			log.Printf("Server's hint: %s \n", hint)
 			return []byte(*password), nil
 		},
 		PSKIdentityHint: []byte("Pion DTLS Client"),

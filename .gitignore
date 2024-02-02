@@ -1,3 +1,2 @@
-server/coap-server
-client/coap-client
-certificates/
+server/server
+client/client
