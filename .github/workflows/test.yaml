@@ -46,3 +46,13 @@ jobs:
           docker ps
           docker container logs `docker ps | grep academy-coap | awk '{ print $1; }'`
         if: always()
+
+      - name: Docker Login
+        run: |
+          docker login -u ${{ vars.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ vars.REGISTRY_LOGIN_SERVER }}
+
+      - name: Push Image
+        run: |
+          docker tag academy-coap ${{vars.REGISTRY_LOGIN_SERVER}}/coap |
+          docker push ${{vars.REGISTRY_LOGIN_SERVER}}/coap
+
