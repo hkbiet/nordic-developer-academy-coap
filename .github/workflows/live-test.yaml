@@ -1,0 +1,25 @@
+name: Live test
+
+on:
+    workflow_dispatch:
+    schedule:
+      - cron: "0 0 * * *"
+    push:
+      paths:
+        - ".github/workflows/live-test.yaml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21.6
+
+      - name: Run test client
+        working-directory: client
+        run: go run client.go -address coap.nordicsemi.academy
