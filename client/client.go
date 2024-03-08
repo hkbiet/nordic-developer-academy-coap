@@ -37,7 +37,10 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
 	defer cancel()
 
+	udpPort := 5688
+	dTLSPort := 5689
 	var udpAddr string
+	var dtlsAddr string
 	config := client.Config{}
 	var opt udp.Option
 	if *udp6 {
@@ -45,14 +48,16 @@ func main() {
 		if err != nil {
 			log.Fatal("Failed to resolve IPv6 address: ", err)
 		}
-		udpAddr = fmt.Sprintf("[%s]:%d", ip6[0].String(), 5688)
+		udpAddr = fmt.Sprintf("[%s]:%d", ip6[0].String(), udpPort)
+		dtlsAddr = fmt.Sprintf("[%s]:%d", ip6[0].String(), dTLSPort)
 		opt = options.WithNetwork("udp6")
 	} else {
 		ip4, err := net.DefaultResolver.LookupIP(context.Background(), "ip4", *address)
 		if err != nil {
 			log.Fatal("Failed to resolve IPv4 address: ", err)
 		}
-		udpAddr = fmt.Sprintf("%s:%d", ip4[0].String(), 5688)
+		udpAddr = fmt.Sprintf("%s:%d", ip4[0].String(), udpPort)
+		dtlsAddr = fmt.Sprintf("%s:%d", ip4[0].String(), dTLSPort)
 		opt = options.WithNetwork("udp")
 	}
 
@@ -72,7 +77,6 @@ func main() {
 		log.Fatalf("Read value %s is not equal written value %s.", id1, readId1)
 	}
 
-	dtlsAddr := fmt.Sprintf("%s:%d", *address, 5689)
 	log.Printf("dTLS Server listening on: %s\n", dtlsAddr)
 	log.Printf("dTLS PSK: %s\n", *password)
 	codTLS, err := dtls.Dial(dtlsAddr, &piondtls.Config{
@@ -82,7 +86,7 @@ func main() {
 		},
 		PSKIdentityHint: []byte("Pion DTLS Client"),
 		CipherSuites:    []piondtls.CipherSuiteID{piondtls.TLS_PSK_WITH_AES_128_CCM_8},
-	})
+	}, opt)
 	check(err)
 
 	internal.TestHello(codTLS, ctx)
