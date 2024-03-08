@@ -8,7 +8,9 @@ import (
 	"net"
 	"time"
 
+	"github.com/plgd-dev/go-coap/v3/options"
 	"github.com/plgd-dev/go-coap/v3/udp"
+	"github.com/plgd-dev/go-coap/v3/udp/client"
 
 	piondtls "github.com/pion/dtls/v2"
 	"github.com/plgd-dev/go-coap/v3/dtls"
@@ -52,7 +54,15 @@ func main() {
 
 	udpAddr := fmt.Sprintf("%s:%d", ip[0].String(), 5688)
 	log.Printf("UDP Server listening on: %s\n", udpAddr)
-	co, err := udp.Dial(udpAddr)
+
+	config := client.Config{}
+	opt := options.WithNetwork("udp")
+	if (*udp6) {
+		opt = options.WithNetwork("udp6")
+	}
+	opt.UDPClientApply(&config)
+	co, err := udp.Dial(udpAddr, opt)
+
 	check(err)
 
 	internal.TestHello(co, ctx)
