@@ -37,29 +37,27 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
 	defer cancel()
 
-	var ip []net.IP
+	var udpAddr string
+	config := client.Config{}
+	var opt udp.Option
 	if *udp6 {
 		ip6, err := net.DefaultResolver.LookupIP(context.Background(), "ip6", *address)
 		if err != nil {
 			log.Fatal("Failed to resolve IPv6 address: ", err)
 		}
-		ip = ip6
+		udpAddr = fmt.Sprintf("[%s]:%d", ip6[0].String(), 5688)
+		opt = options.WithNetwork("udp6")
 	} else {
 		ip4, err := net.DefaultResolver.LookupIP(context.Background(), "ip4", *address)
 		if err != nil {
 			log.Fatal("Failed to resolve IPv4 address: ", err)
 		}
-		ip = ip4
+		udpAddr = fmt.Sprintf("%s:%d", ip4[0].String(), 5688)
+		opt = options.WithNetwork("udp")
 	}
 
-	udpAddr := fmt.Sprintf("%s:%d", ip[0].String(), 5688)
 	log.Printf("UDP Server listening on: %s\n", udpAddr)
 
-	config := client.Config{}
-	opt := options.WithNetwork("udp")
-	if (*udp6) {
-		opt = options.WithNetwork("udp6")
-	}
 	opt.UDPClientApply(&config)
 	co, err := udp.Dial(udpAddr, opt)
 
