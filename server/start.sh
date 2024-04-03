@@ -23,8 +23,8 @@ for interface in $ipv6_interfaces; do
     IP=$(ip -o -6 addr show $interface | awk '{print $4}' | cut -d'/' -f1)
     echo "Interface: $interface, Assigned IPv6: $IP"
 
-    nohup /home/coap/coap-server -address "${IP}" -ipv6 -password "connect:anything" -dTLS &
-    nohup /home/coap/coap-server -address "${IP}" -ipv6 &
+    nohup /home/coap/coap-server -address "${IP}" -udp6 -password "connect:anything" -dTLS &
+    nohup /home/coap/coap-server -address "${IP}" -udp6 &
 done
 
 sleep infinity
