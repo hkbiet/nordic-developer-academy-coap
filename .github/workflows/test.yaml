@@ -3,7 +3,6 @@ name: Tests
 on: [push]
 
 env:
-  IMAGE_NAME: coap
   IMAGE_TAGGED: coap:${{ github.sha }}
   REPO_IMAGE_TAGGED: ${{ vars.REGISTRY_LOGIN_SERVER }}/coap:${{ github.sha }}
   REPO_IMAGE_LATEST: ${{ vars.REGISTRY_LOGIN_SERVER }}/coap:latest
