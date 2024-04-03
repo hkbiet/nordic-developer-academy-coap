@@ -26,7 +26,8 @@ func main() {
 	password := flag.String("password", "connect:anything",
 		"The password to use for the PSK in dTLS.")
 	dtls := flag.Bool("dTLS", false, "Start a dTLS server")
-	udp6 := flag.Bool("udp6", false, "Whether to use IPv6")
+	network := flag.String("network", "udp4",
+		"The network to use, `udp4` or `udp6`.")
 	flag.Parse()
 
 	storageConnectionString, ok := os.LookupEnv("STORAGE_CONNECTION_STRING")
@@ -47,23 +48,13 @@ func main() {
 
 	udpPort := 5688
 	dTLSPort := 5689
-	var udpAddr string
-	var dtlsAddr string
-	var network string
-	if *udp6 {
-		udpAddr = fmt.Sprintf("[%s]:%d", *address, udpPort)
-		dtlsAddr = fmt.Sprintf("[%s]:%d", *address, dTLSPort)
-		network = "udp6"
-	} else {
-		udpAddr = fmt.Sprintf("%s:%d", *address, udpPort)
-		dtlsAddr = fmt.Sprintf("%s:%d", *address, dTLSPort)
-		network = "udp"
-	}
+	udpAddr := fmt.Sprintf("%s:%d", *address, udpPort)
+	dtlsAddr := fmt.Sprintf("%s:%d", *address, dTLSPort)
 
 	if *dtls {
-		log.Printf("dTLS UDP Server listening on: %s\n", dtlsAddr)
+		log.Printf("dTLS %s Server listening on: %s\n", *network, dtlsAddr)
 		log.Printf("dTLS PSK: %s\n", *password)
-		log.Fatal(coap.ListenAndServeDTLS(network, dtlsAddr, &piondtls.Config{
+		log.Fatal(coap.ListenAndServeDTLS(*network, dtlsAddr, &piondtls.Config{
 			PSK: func(hint []byte) ([]byte, error) {
 				log.Printf("Client's hint: %s \n", hint)
 				return []byte(*password), nil
@@ -72,7 +63,7 @@ func main() {
 			CipherSuites:    []piondtls.CipherSuiteID{piondtls.TLS_PSK_WITH_AES_128_CCM_8},
 		}, r))
 	} else {
-		log.Printf("UDP Server listening on: %s\n", udpAddr)
-		log.Fatal(coap.ListenAndServe(network, udpAddr, r))
+		log.Printf("%s Server listening on: %s\n", *network, udpAddr)
+		log.Fatal(coap.ListenAndServe(*network, udpAddr, r))
 	}
 }
