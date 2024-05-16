@@ -20,6 +20,20 @@ func check(e error) {
 	}
 }
 
+type serverConfig struct {
+	oldUdpPort  int
+	newUdpPort  int
+	dtlsOldPort int
+	dtlsNewPort int
+}
+
+var config = serverConfig{
+	oldUdpPort:  5688,
+	newUdpPort:  5683,
+	dtlsOldPort: 5689,
+	dtlsNewPort: 5684,
+}
+
 func main() {
 	address := flag.String("address", "localhost",
 		"The UDP Server listen address, e.g. `localhost` or `0.0.0.0`.")
@@ -46,10 +60,29 @@ func main() {
 
 	r := internal.NewServer(storageClient, containerName)
 
-	udpPort := 5683
-	dTLSPort := 5684
-	udpAddr := fmt.Sprintf("%s:%d", *address, udpPort)
-	dtlsAddr := fmt.Sprintf("%s:%d", *address, dTLSPort)
+	go func() {
+		udpAddrOld := fmt.Sprintf("%s:%d", *address, config.oldUdpPort)
+		dtlsAddrOld := fmt.Sprintf("%s:%d", *address, config.dtlsOldPort)
+
+		if *dtls {
+			log.Printf("dTLS %s Server listening on: %s\n", *network, dtlsAddrOld)
+			log.Printf("dTLS PSK: %s\n", *password)
+			log.Fatal(coap.ListenAndServeDTLS(*network, dtlsAddrOld, &piondtls.Config{
+				PSK: func(hint []byte) ([]byte, error) {
+					log.Printf("Client's hint: %s \n", hint)
+					return []byte(*password), nil
+				},
+				PSKIdentityHint: []byte("Pion DTLS Client"),
+				CipherSuites:    []piondtls.CipherSuiteID{piondtls.TLS_PSK_WITH_AES_128_CCM_8},
+			}, r))
+		} else {
+			log.Printf("%s Old Server listening on: %s\n", *network, udpAddrOld)
+			log.Fatal(coap.ListenAndServe(*network, udpAddrOld, r))
+		}
+	}()
+
+	udpAddr := fmt.Sprintf("%s:%d", *address, config.newUdpPort)
+	dtlsAddr := fmt.Sprintf("%s:%d", *address, config.dtlsNewPort)
 
 	if *dtls {
 		log.Printf("dTLS %s Server listening on: %s\n", *network, dtlsAddr)
