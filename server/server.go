@@ -46,8 +46,8 @@ func main() {
 
 	r := internal.NewServer(storageClient, containerName)
 
-	udpPort := 5688
-	dTLSPort := 5689
+	udpPort := 5683
+	dTLSPort := 5684
 	udpAddr := fmt.Sprintf("%s:%d", *address, udpPort)
 	dtlsAddr := fmt.Sprintf("%s:%d", *address, dTLSPort)
 

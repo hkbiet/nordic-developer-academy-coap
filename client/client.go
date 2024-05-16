@@ -37,8 +37,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
 	defer cancel()
 
-	udpPort := 5688
-	dTLSPort := 5689
+	udpPort := 5683
+	dTLSPort := 5684
 	var udpAddr string
 	var dtlsAddr string
 	config := client.Config{}
