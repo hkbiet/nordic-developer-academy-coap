@@ -59,7 +59,6 @@ func testPorts(flagValues flags, udpPort int, dTLSPort int) {
 
 	var udpAddr string
 	var dtlsAddr string
-	_ = dtlsAddr
 	config := client.Config{}
 	var opt udp.Option
 	if flagValues.udp6 {
