@@ -23,15 +23,15 @@ func check(e error) {
 type serverConfig struct {
 	oldUdpPort  int
 	newUdpPort  int
-	dtlsOldPort int
-	dtlsNewPort int
+	oldDtlsPort int
+	newDtlsPort int
 }
 
 var config = serverConfig{
 	oldUdpPort:  5688,
 	newUdpPort:  5683,
-	dtlsOldPort: 5689,
-	dtlsNewPort: 5684,
+	oldDtlsPort: 5689,
+	newDtlsPort: 5684,
 }
 
 func main() {
@@ -61,13 +61,13 @@ func main() {
 	r := internal.NewServer(storageClient, containerName)
 
 	go func() {
-		udpAddrOld := fmt.Sprintf("%s:%d", *address, config.oldUdpPort)
-		dtlsAddrOld := fmt.Sprintf("%s:%d", *address, config.dtlsOldPort)
+		udpAddr := fmt.Sprintf("%s:%d", *address, config.oldUdpPort)
+		dtlsAddr := fmt.Sprintf("%s:%d", *address, config.oldDtlsPort)
 
 		if *dtls {
-			log.Printf("dTLS %s Server listening on: %s\n", *network, dtlsAddrOld)
+			log.Printf("dTLS %s Server listening on: %s\n", *network, dtlsAddr)
 			log.Printf("dTLS PSK: %s\n", *password)
-			log.Fatal(coap.ListenAndServeDTLS(*network, dtlsAddrOld, &piondtls.Config{
+			log.Fatal(coap.ListenAndServeDTLS(*network, dtlsAddr, &piondtls.Config{
 				PSK: func(hint []byte) ([]byte, error) {
 					log.Printf("Client's hint: %s \n", hint)
 					return []byte(*password), nil
@@ -76,13 +76,13 @@ func main() {
 				CipherSuites:    []piondtls.CipherSuiteID{piondtls.TLS_PSK_WITH_AES_128_CCM_8},
 			}, r))
 		} else {
-			log.Printf("%s Old Server listening on: %s\n", *network, udpAddrOld)
-			log.Fatal(coap.ListenAndServe(*network, udpAddrOld, r))
+			log.Printf("%s Old Server listening on: %s\n", *network, udpAddr)
+			log.Fatal(coap.ListenAndServe(*network, udpAddr, r))
 		}
 	}()
 
 	udpAddr := fmt.Sprintf("%s:%d", *address, config.newUdpPort)
-	dtlsAddr := fmt.Sprintf("%s:%d", *address, config.dtlsNewPort)
+	dtlsAddr := fmt.Sprintf("%s:%d", *address, config.newDtlsPort)
 
 	if *dtls {
 		log.Printf("dTLS %s Server listening on: %s\n", *network, dtlsAddr)
