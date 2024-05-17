@@ -1,16 +1,12 @@
 package main
 
 import (
+	"coap-server/launch"
 	"flag"
-	"fmt"
-	"github.com/plgd-dev/go-coap/v3/mux"
 	"log"
 	"os"
 
 	"coap-server/internal"
-
-	piondtls "github.com/pion/dtls/v2"
-	coap "github.com/plgd-dev/go-coap/v3"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 )
@@ -19,20 +15,6 @@ func check(e error) {
 	if e != nil {
 		panic(e)
 	}
-}
-
-type serverPorts struct {
-	oldUdpPort  int
-	newUdpPort  int
-	oldDtlsPort int
-	newDtlsPort int
-}
-
-type flags struct {
-	address  string
-	password string
-	dtls     bool
-	network  string
 }
 
 func main() {
@@ -45,18 +27,18 @@ func main() {
 		"The network to use, `udp4` or `udp6`.")
 	flag.Parse()
 
-	var flagValues = flags{
-		address:  *address,
-		password: *password,
-		dtls:     *dtls,
-		network:  *network,
+	var flagValues = launch.ServerFlags{
+		Address:  *address,
+		Password: *password,
+		Dtls:     *dtls,
+		Network:  *network,
 	}
 
-	var ports = serverPorts{
-		oldUdpPort:  5688,
-		newUdpPort:  5683,
-		oldDtlsPort: 5689,
-		newDtlsPort: 5684,
+	var ports = launch.ServerPorts{
+		OldUdpPort:  5688,
+		NewUdpPort:  5683,
+		OldDtlsPort: 5689,
+		NewDtlsPort: 5684,
 	}
 
 	storageConnectionString, ok := os.LookupEnv("STORAGE_CONNECTION_STRING")
@@ -76,30 +58,9 @@ func main() {
 	r := internal.NewServer(storageClient, containerName)
 
 	// old ports
-	go launchServer(flagValues, ports.oldUdpPort, ports.oldDtlsPort, r)
+	go launch.Server(flagValues, ports.OldUdpPort, ports.OldDtlsPort, r)
 
 	// new ports
-	launchServer(flagValues, ports.newUdpPort, ports.newDtlsPort, r)
+	launch.Server(flagValues, ports.NewUdpPort, ports.NewDtlsPort, r)
 
-}
-
-func launchServer(flagValues flags, udpPort int, dtlsPort int, r *mux.Router) {
-	udpAddr := fmt.Sprintf("%s:%d", flagValues.address, udpPort)
-	dtlsAddr := fmt.Sprintf("%s:%d", flagValues.address, dtlsPort)
-
-	if flagValues.dtls {
-		log.Printf("dTLS %s Server listening on: %s\n", flagValues.network, dtlsAddr)
-		log.Printf("dTLS PSK: %s\n", flagValues.password)
-		log.Fatal(coap.ListenAndServeDTLS(flagValues.network, dtlsAddr, &piondtls.Config{
-			PSK: func(hint []byte) ([]byte, error) {
-				log.Printf("Client's hint: %s \n", hint)
-				return []byte(flagValues.password), nil
-			},
-			PSKIdentityHint: []byte("Pion DTLS Client"),
-			CipherSuites:    []piondtls.CipherSuiteID{piondtls.TLS_PSK_WITH_AES_128_CCM_8},
-		}, r))
-	} else {
-		log.Printf("%s Server listening on: %s\n", flagValues.network, udpAddr)
-		log.Fatal(coap.ListenAndServe(flagValues.network, udpAddr, r))
-	}
 }
